@@ -401,7 +401,7 @@ CREATE POLICY "public_all" ON groups FOR ALL USING (true) WITH CHECK (true);</te
         <div class="f"><label>申込期限</label><input type="datetime-local" id="ev-dl"></div>
       </div>
       <div class="f"><label>説明・備考</label><textarea id="ev-desc" placeholder="持ち物・注意事項など"></textarea></div>
-      <button class="btn bp bfull" onclick="createEvent()" style="min-height:56px;font-size:16px">🎟 イベントを作成 →</button>
+      <button class="btn bp bfull" onclick="createEventAdmin()" style="min-height:56px;font-size:16px">🎟 イベントを作成 →</button>
     </div>
     <div class="slbl">作成済みイベント</div>
     <div id="adm-el"><div class="empty"><div class="ei">🗂</div>まだイベントがありません</div></div>
@@ -1222,7 +1222,7 @@ function showSurveyResult(sid){
 /* ══════════════════════════════════════════
    管理：イベント作成
 ══════════════════════════════════════════ */
-async function createEvent(){
+async function createEventAdmin(){
   const title=document.getElementById('ev-t').value.trim();
   const dt=document.getElementById('ev-dt').value;
   const timeRange=document.getElementById('ev-tr').value.trim();
