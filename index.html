@@ -469,7 +469,7 @@ CREATE POLICY "public_all" ON groups FOR ALL USING (true) WITH CHECK (true);</te
 /* ══════════════════════════════════════════
    SUPABASE CLIENT（軽量版）
 ══════════════════════════════════════════ */
-let SB_URL='https://hnzehbytvspvkdflxywr.supabase.co/rest/v1/', SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhuemVoYnl0dnNwdmtkZmx4eXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2OTM5MTAsImV4cCI6MjEwMDI2OTkxMH0.SgPBzVpqsVnWf9Cb2EnJHjsZn1eVvr_SztHbgiZ7dlM';
+let SB_URL='https://hnzehbytvspvkdflxywr.supabase.co', SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhuemVoYnl0dnNwdmtkZmx4eXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2OTM5MTAsImV4cCI6MjEwMDI2OTkxMH0.SgPBzVpqsVnWf9Cb2EnJHjsZn1eVvr_SztHbgiZ7dlM';
 
 async function sbGet(code){
   const r=await fetch(`${SB_URL}/rest/v1/groups?code=eq.${encodeURIComponent(code)}&select=data`,{
