@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#16141f">
+<title>コミュサポ</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#16141f;--ink2:#3b3752;--muted:#8c88a8;
+  --bg:#f0ede8;--card:#fffffe;--border:#dedad3;
+  --accent:#e8401c;--ok:#22b573;--warn:#f59e0b;
+  --radius:16px;--font:'Zen Kaku Gothic New',sans-serif;
+  --mono:'Syne',sans-serif;--shadow:0 4px 24px rgba(22,20,31,.10);
+}
+html{touch-action:manipulation;-webkit-text-size-adjust:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100dvh;padding-bottom:100px;-webkit-font-smoothing:antialiased}
+.hdr{background:var(--ink);color:#fff;padding:12px 14px;position:sticky;top:0;z-index:200;display:flex;align-items:center;gap:10px}
+.logo{width:36px;height:36px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.hdr h1{font-family:var(--mono);font-size:16px;font-weight:800}
+.hdr p{font-size:11px;color:#aaa}
+.hdr-right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.hbtn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;padding:7px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:background .2s;min-height:36px;display:flex;align-items:center;gap:4px}
+.hbtn:hover{background:rgba(255,255,255,.22)}
+.hbtn:active{transform:scale(.97)}
+.nb{background:var(--accent);color:#fff;border-radius:10px;font-size:10px;font-weight:700;padding:1px 6px;min-width:18px;text-align:center}
+.tabs{background:var(--card);border-bottom:1px solid var(--border);display:flex;position:sticky;top:60px;z-index:190;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1;min-width:72px;padding:12px 6px;font-size:11px;font-weight:700;font-family:var(--font);border:none;background:transparent;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;-webkit-tap-highlight-color:transparent}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab.atab.locked{opacity:.5}
+.main{padding:12px;max-width:640px;margin:0 auto}
+.hidden{display:none!important}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.ct{font-family:var(--mono);font-size:15px;font-weight:800;margin-bottom:4px}
+.cs{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6}
+.f{margin-bottom:15px}
+.f label{display:block;font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:6px}
+.f input,.f textarea,.f select{width:100%;border:2px solid var(--border);border-radius:10px;padding:12px 14px;font-size:15px;font-family:var(--font);background:#faf9f6;color:var(--ink);outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;appearance:none}
+.f input:focus,.f textarea:focus,.f select:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(232,64,28,.12)}
+.f textarea{resize:vertical;min-height:80px}
+.f input[type="datetime-local"]{font-size:14px;padding:11px 14px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.lchip input[type=checkbox]{display:none}
+.lchip label{display:block;padding:10px 4px;text-align:center;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid var(--border);background:#faf9f6;color:var(--ink2);transition:all .15s;user-select:none;-webkit-user-select:none;min-height:44px;display:flex;align-items:center;justify-content:center}
+.lchip input:checked+label{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lchip.any input:checked+label{background:var(--accent);border-color:var(--accent)}
+.rg{display:flex;flex-wrap:wrap;gap:7px}
+.rg input[type=radio]{display:none}
+.rg label{padding:10px 14px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;background:#eee;color:#888;transition:all .15s;user-select:none;-webkit-user-select:none;min-height:44px;display:flex;align-items:center}
+.rg input[type=radio]:checked+label{background:var(--ink);color:#fff}
+.btn{padding:13px 18px;border-radius:10px;font-family:var(--font);font-size:14px;font-weight:700;border:none;cursor:pointer;transition:opacity .2s,transform .1s;min-height:48px;-webkit-tap-highlight-color:transparent}
+.btn:active{opacity:.8;transform:scale(.97)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.bp{background:var(--accent);color:#fff}
+.bs{background:var(--ink);color:#fff}
+.bo{background:transparent;border:2px solid var(--border);color:var(--ink2)}
+.bfull{width:100%;padding:15px;font-size:15px;margin-top:6px}
+.bsm{padding:7px 13px;font-size:12px;min-height:36px}
+.bdg{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.bp2{background:#fef3c7;color:#92400e}
+.ba{background:#dcfce7;color:#166534}
+.bw{background:#ede9fe;color:#5b21b6}
+.br2{background:#fee2e2;color:#991b1b}
+.bpr{background:var(--accent);color:#fff}
+.bg2{background:#f3f4f6;color:#6b7280}
+.bok{background:#dcfce7;color:#166534}
+.alt{padding:12px 14px;border-radius:10px;font-size:12px;line-height:1.6;margin-bottom:14px}
+.ai{background:#eff6ff;border-left:4px solid #3b82f6;color:#1e40af}
+.aw{background:#fffbeb;border-left:4px solid var(--warn);color:#92400e}
+.al{background:#fff1f2;border-left:4px solid var(--accent);color:#9f1239;font-weight:700;font-size:13px;text-align:center;padding:14px}
+.dlist{display:flex;flex-direction:column;gap:8px}
+.di{background:#faf9f6;border:2px solid var(--border);border-radius:12px;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;transition:all .2s;flex-wrap:wrap}
+.di.ok{border-color:var(--ok);background:#f0fdf4}
+.di.ng{border-color:var(--accent);background:#fff5f5}
+.di.maybe{border-color:var(--warn);background:#fffbeb}
+.dlbl{font-size:13px;font-weight:700;flex:1;min-width:100px}
+.tg{display:flex;gap:5px;flex-wrap:wrap}
+.tg input[type=radio]{display:none}
+.tg label{padding:7px 11px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;background:#eee;color:#888;transition:all .15s;user-select:none;-webkit-user-select:none;min-height:36px;display:flex;align-items:center}
+.tg .rok:checked+label{background:var(--ok);color:#fff}
+.tg .rng:checked+label{background:var(--accent);color:#fff}
+.tg .rma:checked+label{background:var(--warn);color:#fff}
+.ml{display:flex;flex-direction:column;gap:8px}
+.mc{background:var(--card);border:2px solid var(--border);border-radius:12px;overflow:hidden}
+.mch{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.mcf{padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.mn{font-weight:700;font-size:14px;flex:1}
+.ec{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
+.eb{background:var(--ink);color:#fff;padding:14px 16px}
+.eb h3{font-family:var(--mono);font-size:15px;font-weight:800;margin-bottom:4px}
+.eb p{font-size:12px;color:#aaa}
+.ebody{padding:14px 16px}
+.em{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.emi label{font-size:11px;color:var(--muted);display:block;margin-bottom:3px}
+.emi span{font-size:14px;font-weight:700}
+.ebar{height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden;margin-bottom:5px}
+.ebf{height:100%;background:var(--ok);border-radius:4px;transition:width .3s}
+.ebf.full{background:var(--accent)}
+.ef{padding:10px 16px;border-top:1px solid var(--border);background:#faf9f6;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
+.sch{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.sct{font-family:var(--mono);font-size:14px;font-weight:800}
+.scb{padding:14px 16px}
+.scf{padding:10px 16px;border-top:1px solid var(--border);background:#faf9f6;display:flex;gap:7px;flex-wrap:wrap}
+.chip{padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700}
+.cok{background:#dcfce7;color:#166534}
+.cng{background:#fee2e2;color:#991b1b}
+.cma{background:#fef9c3;color:#713f12}
+.ptgl{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);background:transparent;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.ptgl.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.overlay{display:none;position:fixed;inset:0;background:rgba(22,20,31,.55);z-index:500;align-items:flex-end;justify-content:center;-webkit-overflow-scrolling:touch}
+.overlay.open{display:flex}
+.modal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:640px;max-height:92dvh;overflow-y:auto;padding:22px 16px 50px;animation:su .25s ease;-webkit-overflow-scrolling:touch}
+@keyframes su{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.mtitle{font-family:var(--mono);font-size:16px;font-weight:800;margin-bottom:4px;padding-right:34px}
+.msub{font-size:12px;color:var(--muted);margin-bottom:16px}
+.mclose{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;border:none;background:#f3f4f6;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;min-height:32px}
+.mhead{position:relative;margin-bottom:16px}
+.rtbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+.rtbl th{background:var(--ink);color:#fff;padding:7px 8px;text-align:left;font-weight:700}
+.rtbl td{padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:middle}
+.slbl{font-family:var(--mono);font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin:18px 0 10px}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ltags{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.ltag{padding:3px 8px;background:#f3f4f6;border-radius:5px;font-size:11px;font-weight:700;color:var(--ink2)}
+.empty{text-align:center;padding:36px 16px;color:var(--muted);font-size:13px}
+.ei{font-size:36px;margin-bottom:10px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;border-radius:12px;padding:14px 20px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap;z-index:900;max-width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.npanel{position:fixed;bottom:0;left:0;right:0;z-index:600;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 14px 24px}
+.ncard{background:var(--ink);color:#fff;border-radius:14px;padding:14px 16px;max-width:480px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.3);display:flex;align-items:flex-start;gap:12px;animation:ni .35s cubic-bezier(.22,1,.36,1);pointer-events:all;transition:opacity .4s}
+@keyframes ni{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.ncb{flex:1}.nct{font-weight:700;font-size:13px;margin-bottom:3px}.ncm{font-size:12px;color:#ccc;line-height:1.4}
+.nclse{background:rgba(255,255,255,.15);border:none;color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;min-height:24px}
+/* setup */
+#setup{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sbox{background:var(--card);border-radius:var(--radius);padding:28px 20px;max-width:420px;width:100%;box-shadow:var(--shadow)}
+.sbox h2{font-family:var(--mono);font-size:20px;font-weight:800;margin-bottom:8px;text-align:center}
+.sbox .logo2{text-align:center;font-size:42px;margin-bottom:12px}
+.sinp{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-size:15px;font-family:var(--font);background:#faf9f6;outline:none;margin-bottom:10px;transition:border-color .2s;-webkit-appearance:none}
+.sinp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,64,28,.12)}
+.serr{color:var(--accent);font-size:13px;font-weight:700;min-height:20px;margin-bottom:8px}
+.sos-btn{background:linear-gradient(135deg,#e8401c,#c0392b);color:#fff;border:none;border-radius:12px;padding:14px 18px;font-family:var(--mono);font-size:14px;font-weight:800;cursor:pointer;width:100%;margin-top:8px;box-shadow:0 4px 14px rgba(232,64,28,.35);transition:transform .1s;min-height:52px}
+.sos-btn:active{transform:scale(.97)}
+.code-box{background:#f3f4f6;border-radius:12px;padding:16px;font-family:var(--mono);font-size:24px;font-weight:800;letter-spacing:.15em;color:var(--ink);text-align:center;margin:14px 0;word-break:break-all}
+.step-bar{display:flex;gap:6px;margin-bottom:20px;justify-content:center}
+.step-dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:background .3s}
+.step-dot.active{background:var(--accent)}
+.step-dot.done{background:var(--ok)}
+.flow-guide{background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:13px;line-height:1.7}
+.flow-guide strong{color:#92400e}
+.connect-status{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-left:auto}
+.connect-status.online{background:#dcfce7;color:#166534}
+.connect-status.offline{background:#fee2e2;color:#991b1b}
+.guide-card{background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;padding:14px 16px;margin-bottom:14px;font-size:13px;line-height:1.7}
+.guide-card strong{color:#1e40af}
+.guide-step{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
+.guide-step-num{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- ===== セットアップ画面 ===== -->
+<div id="setup">
+  <div class="sbox">
+    <div class="logo2">🎉</div>
+    <h2>コミュサポ</h2>
+    <p style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:16px;line-height:1.7">
+      招待リンクをタップするだけで参加登録できます！
+    </p>
+
+    <!-- 招待リンクから自動参加中の表示 -->
+    <div id="pane-autojoin" class="hidden" style="text-align:center;padding:20px 0">
+      <div style="font-size:34px;margin-bottom:10px">📡</div>
+      <div style="font-size:14px;font-weight:700;color:var(--ink2)">グループに接続しています...</div>
+    </div>
+
+    <!-- グループ作成・参加 -->
+    <div id="step-group">
+
+      <div id="pane-join">
+        <div class="guide-card">
+          <strong>🤝 グループに参加</strong><br>
+          招待リンクを開いた場合は自動で参加します。手動で参加する場合は、管理者から教えてもらったグループコードを入力してください。
+        </div>
+        <div class="f"><label>グループコード</label><input class="sinp" id="join-code" placeholder="例：ABC123" maxlength="10" style="text-align:center;font-size:22px;letter-spacing:.15em;font-family:var(--mono);font-weight:800;text-transform:uppercase" onkeydown="if(event.key==='Enter')joinGroup()"></div>
+        <div class="serr" id="join-err"></div>
+        <button class="btn bs bfull" onclick="joinGroup()" style="min-height:52px">🚪 グループに参加する →</button>
+        <div style="text-align:center;margin:14px 0;font-size:12px;color:var(--muted);font-weight:700">または</div>
+        <button class="btn bp bfull" onclick="showPane('pane-create')" style="min-height:52px">＋ 新しいグループを作成（管理者）→</button>
+      </div>
+
+      <div id="pane-create" class="hidden">
+        <div class="guide-card">
+          <strong>👑 管理者としてグループ作成</strong><br>
+          グループを作ると、参加者用の招待リンクとコードが発行されます。
+        </div>
+        <div class="f"><label>グループ名 *</label><input class="sinp" id="grp-name" placeholder="例：BBQサークル"></div>
+        <div class="f"><label>管理者パスワード（4文字以上）*</label><input type="password" class="sinp" id="grp-pw" placeholder="参加者には教えない"></div>
+        <div class="serr" id="create-err"></div>
+        <button class="btn bp bfull" id="create-btn" onclick="createGroup()" style="min-height:52px">作成する →</button>
+        <button class="btn bo bfull" style="margin-top:10px;min-height:48px" onclick="showPane('pane-join')">← 戻る</button>
+      </div>
+
+      <div id="pane-done" class="hidden" style="text-align:center">
+        <div style="font-size:15px;color:var(--ok);font-weight:700;margin-bottom:10px">✅ グループを作成しました！</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:6px">参加者に送る招待リンク（タップで参加完了）</p>
+        <div class="code-box" id="done-link" style="font-size:13px;font-family:var(--font);font-weight:700;letter-spacing:0;word-break:break-all"></div>
+        <button class="btn bs bfull" onclick="copyInvite()" style="min-height:48px;margin-bottom:14px">📋 招待リンクをコピー</button>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:6px">グループコード（手入力用）</p>
+        <div class="code-box" id="done-code" style="padding:10px;font-size:18px"></div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6">
+          招待リンクをLINEやメールで送るだけで、参加者は設定不要で参加できます。
+        </p>
+        <button class="btn bp bfull" onclick="enterApp()" style="min-height:52px">アプリを開く →</button>
+      </div>
+    </div>
+
+    <!-- 管理者向け：初回のデータベース設定ガイド（参加者は操作不要） -->
+    <div style="margin-top:20px;padding-top:16px;border-top:2px solid var(--border)">
+      <button class="btn bo bfull" style="font-size:12px;min-height:44px" onclick="document.getElementById('db-guide').classList.toggle('hidden')">🛠 管理者向け：データベース初期設定ガイド（初回のみ）</button>
+      <div id="db-guide" class="hidden" style="margin-top:14px">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.7">
+          このアプリはSupabase（クラウドDB）に接続済みです。まだ自分の環境を用意していない場合のみ、以下の手順で1回だけ設定してください（参加者は何もする必要はありません）。
+        </p>
+        <div class="guide-step">
+          <div class="guide-step-num">1</div>
+          <div><a href="https://supabase.com" target="_blank" style="color:var(--accent);font-weight:700">supabase.com</a> で「Start your project」→ Googleアカウントでログイン</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">2</div>
+          <div>プロジェクトを作成（名前は何でもOK、リージョンは「Tokyo」推奨）</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">3</div>
+          <div>左メニュー「Project Settings」→「API」→ URLとanon keyを、このHTMLファイル内の <code style="font-size:11px;background:#f3f4f6;padding:1px 4px;border-radius:4px">SB_URL</code> / <code style="font-size:11px;background:#f3f4f6;padding:1px 4px;border-radius:4px">SB_KEY</code> に書き換える</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">4</div>
+          <div>左メニュー「SQL Editor」→「New query」→ 下のSQLを貼り付けて「Run」</div>
+        </div>
+        <textarea readonly style="width:100%;height:130px;font-size:11px;font-family:monospace;border:2px solid var(--border);border-radius:10px;padding:10px;background:#f8f8f8;resize:none;margin-top:8px" onclick="this.select()">CREATE TABLE groups (
+  code TEXT PRIMARY KEY,
+  data JSONB NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE groups ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public_all" ON groups FOR ALL USING (true) WITH CHECK (true);</textarea>
+        <button class="btn bo bfull" style="margin-top:8px;font-size:12px;min-height:44px" onclick="this.previousElementSibling.select();document.execCommand('copy');toast('📋 SQLをコピーしました')">📋 SQLをコピー</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== アプリ本体 ===== -->
+<header class="hdr">
+  <div class="logo">🎉</div>
+  <div><h1 id="hdr-title">コミュサポ</h1><p id="hdr-sub">-</p></div>
+  <div class="hdr-right">
+    <div class="connect-status offline" id="conn-status">📡 未接続</div>
+    <button class="hbtn" onclick="openNotifModal()">🔔 <span class="nb hidden" id="nbell">0</span></button>
+    <button class="hbtn" id="lock-btn" onclick="handleLock()">🔒 管理</button>
+  </div>
+</header>
+<div class="tabs">
+  <button class="tab active" data-tab="reg" onclick="sw('reg')">👋 登録</button>
+  <button class="tab" data-tab="survey" onclick="sw('survey')">📅 日程</button>
+  <button class="tab" data-tab="events" onclick="sw('events')">🎟 イベント</button>
+  <button class="tab atab locked" data-tab="am" onclick="sw('am')">👑 会員</button>
+  <button class="tab atab locked" data-tab="as" onclick="sw('as')">📊 調査</button>
+  <button class="tab atab locked" data-tab="ae" onclick="sw('ae')">🗂 管理</button>
+</div>
+<div class="main">
+
+  <!-- 登録 -->
+  <div id="tab-reg">
+    <div class="card">
+      <div class="ct">👋 参加者登録</div>
+      <div class="cs">名前・年齢・参加できる場所を登録してください。登録後、イベントに参加申し込みできます。</div>
+      
+      <div id="reg-guide" class="flow-guide hidden">
+        <strong>✅ 登録完了！</strong> 次は「🎟 イベント」タブから参加したいイベントを選んで申し込みましょう。
+      </div>
+      
+      <div class="f"><label>お名前（ニックネームOK）*</label><input id="rn" placeholder="例：たなか" autocomplete="name"></div>
+      <div class="f"><label>年齢 *</label><input id="ra" placeholder="例：32" inputmode="numeric" style="max-width:160px" autocomplete="off"></div>
+      <div class="f">
+        <label>参加できる場所（複数選択可）*</label>
+        <div class="lgrid" id="lgrid">
+          <div class="lchip any" style="grid-column:1/-1"><input type="checkbox" id="lc-any" value="どこでも" onchange="anyTgl(this)"><label for="lc-any">📍 どこでもOK</label></div>
+          <div class="lchip"><input type="checkbox" id="lc0" value="名東区" onchange="areaTgl()"><label for="lc0">名東区</label></div>
+          <div class="lchip"><input type="checkbox" id="lc1" value="天白区" onchange="areaTgl()"><label for="lc1">天白区</label></div>
+          <div class="lchip"><input type="checkbox" id="lc2" value="東区" onchange="areaTgl()"><label for="lc2">東区</label></div>
+          <div class="lchip"><input type="checkbox" id="lc3" value="南区" onchange="areaTgl()"><label for="lc3">南区</label></div>
+          <div class="lchip"><input type="checkbox" id="lc4" value="昭和区" onchange="areaTgl()"><label for="lc4">昭和区</label></div>
+          <div class="lchip"><input type="checkbox" id="lc5" value="中区" onchange="areaTgl()"><label for="lc5">中区</label></div>
+          <div class="lchip"><input type="checkbox" id="lc6" value="瑞穂区" onchange="areaTgl()"><label for="lc6">瑞穂区</label></div>
+          <div class="lchip"><input type="checkbox" id="lc7" value="中川区" onchange="areaTgl()"><label for="lc7">中川区</label></div>
+          <div class="lchip"><input type="checkbox" id="lc8" value="日進市" onchange="areaTgl()"><label for="lc8">日進市</label></div>
+          <div class="lchip"><input type="checkbox" id="lc9" value="東郷町" onchange="areaTgl()"><label for="lc9">東郷町</label></div>
+        </div>
+        <input id="rloc" placeholder="その他（任意）例：緑区" style="font-size:13px;margin-top:6px">
+      </div>
+      <div class="f"><label>メモ（任意）</label><textarea id="rm" placeholder="「車椅子利用です」など"></textarea></div>
+      <div class="f">
+        <label>🔔 通知設定</label>
+        <div class="rg">
+          <input type="radio" name="np" id="np-app" value="app" checked><label for="np-app">📱 アプリ内</label>
+          <input type="radio" name="np" id="np-br" value="browser"><label for="np-br">🔔 ブラウザ通知も</label>
+          <input type="radio" name="np" id="np-no" value="none"><label for="np-no">なし</label>
+        </div>
+      </div>
+      <button class="btn bp bfull" onclick="regMember()" style="min-height:56px;font-size:16px">✅ 登録する →</button>
+    </div>
+    <div class="card hidden" id="my-card">
+      <div class="ct">📋 あなたの登録情報</div>
+      <div id="my-info"></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn bsm bo" style="flex:1;min-height:44px" onclick="prefill()">✏️ 編集する</button>
+        <button class="btn bsm bp" style="flex:1;min-height:44px" onclick="sw('events')">🎟 イベントを見る →</button>
+      </div>
+    </div>
+    <div class="card hidden" id="notif-card">
+      <div class="sh"><div class="ct">🔔 通知</div><button class="btn bsm bo" onclick="clearNotifs()">既読</button></div>
+      <div id="notif-list"></div>
+    </div>
+  </div>
+
+  <!-- 日程回答 -->
+  <div id="tab-survey" class="hidden">
+    <div id="survey-ul"><div class="empty"><div class="ei">📅</div>日程調査はありません</div></div>
+  </div>
+
+  <!-- イベント -->
+  <div id="tab-events" class="hidden">
+    <div id="event-ul"><div class="empty"><div class="ei">🎟</div>イベントはありません</div></div>
+  </div>
+
+  <!-- 管理：会員 -->
+  <div id="tab-am" class="hidden">
+    <div class="card">
+      <div class="sh">
+        <div><div class="ct">👑 登録者一覧</div><div class="cs" style="margin-bottom:0">⭐ で優先設定</div></div>
+        <div style="display:flex;gap:6px">
+          <button class="btn bsm bo" onclick="exportCSV()">CSV</button>
+          <button class="btn bsm bs" onclick="om('m-add')">＋追加</button>
+        </div>
+      </div>
+      <div id="adm-ml"><div class="empty"><div class="ei">👥</div>まだ登録者がいません</div></div>
+    </div>
+    <div class="slbl">🆘 緊急連絡</div>
+    <div id="sos-list"><div class="empty" style="padding:14px"><div class="ei">✅</div>緊急連絡はありません</div></div>
+  </div>
+
+  <!-- 管理：調査 -->
+  <div id="tab-as" class="hidden">
+    <div class="card">
+      <div class="ct">＋ 新しい日程調査</div>
+      <div class="cs">候補日を設定して参加者に通知します</div>
+      <div class="f"><label>調査タイトル *</label><input id="sv-t" placeholder="例：6月BBQの日程調査"></div>
+      <div class="f"><label>回答期限</label><input type="datetime-local" id="sv-dl"></div>
+      <div class="f">
+        <label>候補日（1行1候補）*</label>
+        <textarea id="sv-d" placeholder="6月14日(土) 昼枠 12:00〜&#10;6月15日(日) 昼枠 12:00〜" style="min-height:110px"></textarea>
+      </div>
+      <div class="f"><label>通知対象</label>
+        <div class="rg">
+          <input type="radio" name="sv-tgt" id="sv-all" value="all" checked><label for="sv-all">全員</label>
+          <input type="radio" name="sv-tgt" id="sv-pri" value="priority"><label for="sv-pri">優先のみ</label>
+        </div>
+      </div>
+      <button class="btn bp bfull" onclick="createSurvey()" style="min-height:56px;font-size:16px">📅 調査を作成 →</button>
+    </div>
+    <div class="slbl">作成済みの調査</div>
+    <div id="adm-sl"><div class="empty"><div class="ei">📊</div>まだ調査がありません</div></div>
+  </div>
+
+  <!-- 管理：イベント -->
+  <div id="tab-ae" class="hidden">
+    <div class="card">
+      <div class="ct">＋ 新しいイベント</div>
+      <div class="cs">日程調査をもとにイベントを立ち上げます</div>
+      <div class="f"><label>イベント名 *</label><input id="ev-t" placeholder="例：夏BBQ 2025"></div>
+      <div class="f2">
+        <div class="f"><label>開催日時 *</label><input type="datetime-local" id="ev-dt"></div>
+        <div class="f"><label>時間帯</label><input id="ev-tr" placeholder="12:00〜16:00"></div>
+      </div>
+      <div class="f2">
+        <div class="f"><label>場所 *</label><input id="ev-pl" placeholder="例：鶴舞公園"></div>
+        <div class="f"><label>定員</label><input id="ev-cap" placeholder="例：20" inputmode="numeric"></div>
+      </div>
+      <div class="f2">
+        <div class="f"><label>費用</label><input id="ev-cost" placeholder="例：1,500円"></div>
+        <div class="f"><label>申込期限</label><input type="datetime-local" id="ev-dl"></div>
+      </div>
+      <div class="f"><label>説明・備考</label><textarea id="ev-desc" placeholder="持ち物・注意事項など"></textarea></div>
+      <button class="btn bp bfull" onclick="createEvent()" style="min-height:56px;font-size:16px">🎟 イベントを作成 →</button>
+    </div>
+    <div class="slbl">作成済みイベント</div>
+    <div id="adm-el"><div class="empty"><div class="ei">🗂</div>まだイベントがありません</div></div>
+  </div>
+
+</div>
+
+<!-- モーダル群 -->
+<div class="overlay" id="m-lock">
+  <div class="modal" style="max-width:380px">
+    <div class="mhead">
+      <div class="mtitle">🔒 管理画面のロック解除</div>
+      <div class="msub">パスワードを入力してください</div>
+      <button class="mclose" onclick="cm('m-lock')">✕</button>
+    </div>
+    <input type="password" id="lock-pw" placeholder="パスワード" style="width:100%;padding:14px;border:2px solid var(--border);border-radius:12px;font-size:16px;text-align:center;letter-spacing:.15em;font-family:var(--font);background:#faf9f6;outline:none;margin-bottom:10px" onkeydown="if(event.key==='Enter')tryUnlock()">
+    <div id="lock-err" style="color:var(--accent);font-size:13px;font-weight:700;min-height:20px;margin-bottom:10px"></div>
+    <button class="btn bp bfull" onclick="tryUnlock()" style="min-height:52px">解除する</button>
+    <div style="margin-top:18px;padding-top:16px;border-top:2px solid var(--border)">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:700">パスワードを変更する</div>
+      <input type="password" id="new-pw" placeholder="新しいパスワード（4文字以上）" style="width:100%;padding:11px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--font);background:#faf9f6;outline:none;margin-bottom:8px">
+      <button class="btn bo bfull" onclick="changePw()" style="font-size:13px;min-height:44px">パスワードを変更</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="m-sr">
+  <div class="modal"><div class="mhead"><div class="mtitle" id="msr-t"></div><div class="msub" id="msr-s"></div><button class="mclose" onclick="cm('m-sr')">✕</button></div><div id="msr-c"></div></div>
+</div>
+<div class="overlay" id="m-ea">
+  <div class="modal"><div class="mhead"><div class="mtitle" id="mea-t"></div><div class="msub" id="mea-s"></div><button class="mclose" onclick="cm('m-ea')">✕</button></div><div id="mea-c"></div></div>
+</div>
+<div class="overlay" id="m-notifs">
+  <div class="modal"><div class="mhead"><div class="mtitle">🔔 通知一覧</div><div class="msub" id="mn-s"></div><button class="mclose" onclick="cm('m-notifs')">✕</button></div><div id="mn-c"></div></div>
+</div>
+<div class="overlay" id="m-add">
+  <div class="modal" style="max-width:420px">
+    <div class="mhead"><div class="mtitle">＋ メンバーを手動追加</div><button class="mclose" onclick="cm('m-add')">✕</button></div>
+    <div class="f"><label>お名前 *</label><input id="am-n" placeholder="例：たなか"></div>
+    <div class="f"><label>年齢 *</label><input id="am-a" placeholder="例：32" inputmode="numeric"></div>
+    <div class="f"><label>場所</label><input id="am-l" placeholder="例：名東区・天白区"></div>
+    <div class="f"><label>メモ</label><textarea id="am-m" style="min-height:60px"></textarea></div>
+    <div class="f"><label>優先メンバー</label>
+      <div class="rg">
+        <input type="radio" name="am-p" id="am-pn" value="false" checked><label for="am-pn">通常</label>
+        <input type="radio" name="am-p" id="am-py" value="true"><label for="am-py">⭐ 優先</label>
+      </div>
+    </div>
+    <button class="btn bp bfull" onclick="addMemberAdmin()" style="min-height:52px">追加する →</button>
+  </div>
+</div>
+<div class="overlay" id="m-sos">
+  <div class="modal" style="max-width:420px">
+    <div class="mhead"><div class="mtitle">🆘 緊急連絡</div><div class="msub">管理者へ直接メッセージを送ります</div><button class="mclose" onclick="cm('m-sos')">✕</button></div>
+    <div id="sos-ei" class="alt aw" style="margin-bottom:14px"></div>
+    <div class="f"><label>メッセージ *</label><textarea id="sos-msg" placeholder="例：急病のため参加できなくなりました。" style="min-height:100px"></textarea></div>
+    <button class="btn bp bfull" style="background:var(--accent);min-height:52px;font-size:16px" onclick="sendSOS()">📩 管理者に送信する</button>
+  </div>
+</div>
+
+<div class="npanel" id="npanel"></div>
+<div id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════
+   SUPABASE CLIENT（軽量版）
+══════════════════════════════════════════ */
+let SB_URL='https://hnzehbytvspvkdflxywr.supabase.co/rest/v1/', SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhuemVoYnl0dnNwdmtkZmx4eXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2OTM5MTAsImV4cCI6MjEwMDI2OTkxMH0.SgPBzVpqsVnWf9Cb2EnJHjsZn1eVvr_SztHbgiZ7dlM';
+
+async function sbGet(code){
+  const r=await fetch(`${SB_URL}/rest/v1/groups?code=eq.${encodeURIComponent(code)}&select=data`,{
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+  });
+  if(!r.ok)throw new Error('fetch error');
+  const rows=await r.json();
+  if(!rows.length)throw new Error('notfound');
+  return rows[0].data;
+}
+
+async function sbUpsert(code,data){
+  const r=await fetch(`${SB_URL}/rest/v1/groups`,{
+    method:'POST',
+    headers:{
+      'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,
+      'Content-Type':'application/json',
+      'Prefer':'resolution=merge-duplicates'
+    },
+    body:JSON.stringify({code,data,updated_at:new Date().toISOString()})
+  });
+  if(!r.ok){const t=await r.text();throw new Error(t);}
+}
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let GRP=null,DATA=null,myMId=null,adminOK=false,pendTab=null,curTab='reg',pollT=null;
+const ATABS=['am','as','ae'];
+const ALLTABS=['reg','survey','events','am','as','ae'];
+
+const LS={
+  get(k){try{return JSON.parse(localStorage.getItem('cs4_'+k))}catch{return null}},
+  set(k,v){localStorage.setItem('cs4_'+k,JSON.stringify(v))},
+};
+
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function fmtDate(iso){if(!iso)return'—';const d=new Date(iso);return`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`}
+function isExp(iso){return iso&&new Date(iso)<new Date()}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3000)}
+function om(id){document.getElementById(id).classList.add('open')}
+function cm(id){document.getElementById(id).classList.remove('open')}
+async function save(){await sbUpsert(GRP.code,DATA)}
+function updateConnStatus(online){
+  const el=document.getElementById('conn-status');
+  if(!el)return;
+  if(online){el.textContent='📡 接続中';el.className='connect-status online';}
+  else{el.textContent='📡 オフライン';el.className='connect-status offline';}
+}
+
+/* ══════════════════════════════════════════
+   SETUP
+══════════════════════════════════════════ */
+function showPane(id){
+  document.getElementById('pane-autojoin').classList.add('hidden');
+  document.getElementById('step-group').classList.remove('hidden');
+  ['pane-join','pane-create','pane-done'].forEach(p=>document.getElementById(p).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function inviteUrlFor(code){
+  return location.origin + location.pathname + '?group=' + encodeURIComponent(code);
+}
+
+async function createGroup(){
+  const name=document.getElementById('grp-name').value.trim();
+  const pw=document.getElementById('grp-pw').value;
+  if(!name){document.getElementById('create-err').textContent='⚠️ グループ名を入力してください';return;}
+  if(!pw||pw.length<4){document.getElementById('create-err').textContent='⚠️ パスワードは4文字以上';return;}
+  document.getElementById('create-err').textContent='作成中...';
+  const btn=document.getElementById('create-btn');btn.disabled=true;
+  const code=(Math.random().toString(36).slice(2,5)+Math.random().toString(36).slice(2,5)).toUpperCase().slice(0,6);
+  const initData={meta:{name,adminPw:pw,code,createdAt:new Date().toISOString()},members:[],surveys:[],events:[],notifs:[],sos:[]};
+  try{
+    await sbUpsert(code,initData);
+    GRP={code,name,adminPw:pw}; DATA=initData;
+    LS.set('grp',GRP); LS.set('isAdmin',true); adminOK=true;
+    document.getElementById('done-code').textContent=code;
+    document.getElementById('done-link').textContent=inviteUrlFor(code);
+    document.getElementById('create-err').textContent='';
+    showPane('pane-done');
+    updateConnStatus(true);
+  }catch(e){
+    document.getElementById('create-err').textContent='❌ 作成失敗。ネット接続を確認してください';
+    updateConnStatus(false);
+  }
+  btn.disabled=false;
+}
+
+function copyInvite(){
+  const txt=document.getElementById('done-link').textContent;
+  const ta=document.createElement('textarea');
+  ta.value=txt;document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');toast('📋 招待リンクをコピーしました');}
+  catch{toast('❌ コピーに失敗しました');}
+  document.body.removeChild(ta);
+}
+
+function enterApp(){
+  document.getElementById('setup').style.display='none';
+  initApp();
+}
+
+async function attemptJoin(code){
+  try{
+    const data=await sbGet(code);
+    GRP={code,name:data.meta.name,adminPw:data.meta.adminPw}; DATA=data;
+    LS.set('grp',GRP);
+    document.getElementById('setup').style.display='none';
+    updateConnStatus(true);
+    initApp();
+    return true;
+  }catch(e){
+    updateConnStatus(false);
+    return false;
+  }
+}
+
+async function joinGroup(){
+  const code=document.getElementById('join-code').value.trim().toUpperCase();
+  if(!code){document.getElementById('join-err').textContent='⚠️ コードを入力してください';return;}
+  document.getElementById('join-err').textContent='確認中...';
+  const ok=await attemptJoin(code);
+  if(!ok)document.getElementById('join-err').textContent='❌ グループが見つかりません、またはコードが間違っています';
+}
+
+/* ══════════════════════════════════════════
+   APP INIT & POLLING
+══════════════════════════════════════════ */
+function initApp(){
+  myMId=LS.get('myMId');
+  if(LS.get('isAdmin'))adminOK=true;
+  updateLockUI();
+  document.getElementById('hdr-title').textContent=GRP.name||'コミュサポ';
+  document.getElementById('hdr-sub').textContent='コード: '+GRP.code;
+  renderMyStatus();renderMyNotifs();updateNBell();
+  startPoll();
+}
+function startPoll(){
+  if(pollT)clearInterval(pollT);
+  pollT=setInterval(async()=>{
+    try{
+      const fresh=await sbGet(GRP.code);
+      const prev=(DATA.notifs||[]).filter(n=>n.memberId===myMId&&!n.read).length;
+      DATA=fresh;
+      const nw=(DATA.notifs||[]).filter(n=>n.memberId===myMId&&!n.read);
+      if(nw.length>prev)nw.slice(0,nw.length-prev).forEach(n=>showInAppNotif(n));
+      updateNBell();renderMyNotifs();
+      refreshTab();
+      updateConnStatus(true);
+    }catch{
+      updateConnStatus(false);
+    }
+  },8000);
+}
+function refreshTab(){
+  if(curTab==='survey')renderUserSurveys();
+  else if(curTab==='events')renderUserEvents();
+  else if(curTab==='am')renderAdmMembers();
+  else if(curTab==='as')renderAdmSurveys();
+  else if(curTab==='ae')renderAdmEvents();
+}
+
+/* ══════════════════════════════════════════
+   LOCK
+══════════════════════════════════════════ */
+function handleLock(){
+  if(adminOK){adminOK=false;LS.set('isAdmin',false);updateLockUI();if(ATABS.includes(curTab))sw('reg');toast('🔒 ロックしました');}
+  else{om('m-lock');setTimeout(()=>{const i=document.getElementById('lock-pw');if(i){i.value='';i.focus();}},200);document.getElementById('lock-err').textContent='';}
+}
+function tryUnlock(){
+  const v=document.getElementById('lock-pw').value;
+  if(v===GRP.adminPw){adminOK=true;LS.set('isAdmin',true);cm('m-lock');updateLockUI();toast('🔓 解除しました');if(pendTab){sw(pendTab);pendTab=null;}}
+  else{document.getElementById('lock-err').textContent='⚠️ パスワードが違います';document.getElementById('lock-pw').value='';document.getElementById('lock-pw').focus();}
+}
+async function changePw(){
+  const np=document.getElementById('new-pw').value.trim();
+  if(!np||np.length<4){toast('⚠️ 4文字以上で入力してください');return;}
+  GRP.adminPw=np;DATA.meta.adminPw=np;LS.set('grp',GRP);
+  try{await save();toast('✅ パスワードを変更しました');}catch{toast('❌ 保存失敗');}
+  document.getElementById('new-pw').value='';
+}
+function updateLockUI(){
+  document.getElementById('lock-btn').textContent=adminOK?'🔓 管理中':'🔒 管理';
+  document.querySelectorAll('.atab').forEach(b=>b.classList.toggle('locked',!adminOK));
+}
+
+/* ══════════════════════════════════════════
+   TABS
+══════════════════════════════════════════ */
+function sw(tab){
+  if(ATABS.includes(tab)&&!adminOK){pendTab=tab;om('m-lock');setTimeout(()=>{const i=document.getElementById('lock-pw');if(i){i.value='';i.focus();}},200);document.getElementById('lock-err').textContent='';return;}
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  ALLTABS.forEach(t=>document.getElementById('tab-'+t).classList.toggle('hidden',t!==tab));
+  curTab=tab;
+  if(tab==='am')renderAdmMembers();
+  else if(tab==='as')renderAdmSurveys();
+  else if(tab==='ae')renderAdmEvents();
+  else if(tab==='survey')renderUserSurveys();
+  else if(tab==='events')renderUserEvents();
+  else if(tab==='reg'){renderMyStatus();renderMyNotifs();}
+}
+
+/* ══════════════════════════════════════════
+   場所
+══════════════════════════════════════════ */
+function anyTgl(cb){if(cb.checked)document.querySelectorAll('#lgrid input[type=checkbox]').forEach(c=>{if(c.id!=='lc-any')c.checked=false;})}
+function areaTgl(){document.getElementById('lc-any').checked=false;}
+function getLocs(){const l=[];document.querySelectorAll('#lgrid input:checked').forEach(c=>l.push(c.value));return{locs:l,other:(document.getElementById('rloc').value||'').trim()}}
+function setLocs(locs,other){document.querySelectorAll('#lgrid input').forEach(c=>c.checked=false);(locs||[]).forEach(v=>{const c=document.querySelector(`#lgrid input[value="${v}"]`);if(c)c.checked=true;});document.getElementById('rloc').value=other||'';}
+
+/* ══════════════════════════════════════════
+   参加者登録
+══════════════════════════════════════════ */
+async function regMember(){
+  if(!DATA){toast('⚠️ グループに参加してください');return;}
+  const name=document.getElementById('rn').value.trim();
+  const age=document.getElementById('ra').value.trim();
+  if(!name||!age){toast('⚠️ 名前と年齢は必須です');return;}
+  const{locs,other}=getLocs();
+  if(!locs.length&&!other){toast('⚠️ 参加できる場所を選択してください');return;}
+  const memo=document.getElementById('rm').value.trim();
+  const notifPref=document.querySelector('input[name=np]:checked')?.value||'app';
+  if(notifPref==='browser'&&'Notification' in window&&Notification.permission==='default')Notification.requestPermission();
+  const btn=event.target;btn.textContent='登録中...';btn.disabled=true;
+  try{
+    if(!DATA.members)DATA.members=[];
+    if(myMId){const idx=DATA.members.findIndex(m=>m.id===myMId);if(idx>=0)DATA.members[idx]={...DATA.members[idx],name,age,locations:locs,locOther:other,memo,notifPref};else myMId=null;}
+    if(!myMId){myMId=uid();LS.set('myMId',myMId);DATA.members.push({id:myMId,name,age,locations:locs,locOther:other,memo,priority:false,notifPref,createdAt:new Date().toISOString()});}
+    await save();
+    toast('✅ 登録しました！');
+    document.getElementById('rn').value='';document.getElementById('ra').value='';document.getElementById('rm').value='';setLocs([]);
+    renderMyStatus();
+    document.getElementById('my-card').classList.remove('hidden');
+    document.getElementById('reg-guide').classList.remove('hidden');
+  }catch{
+    toast('❌ 登録失敗。ネット接続を確認してください');
+    updateConnStatus(false);
+  }
+  btn.textContent='✅ 登録する →';btn.disabled=false;
+}
+function renderMyStatus(){
+  if(!DATA||!myMId)return;
+  const m=(DATA.members||[]).find(m=>m.id===myMId);
+  if(!m){document.getElementById('my-card').classList.add('hidden');document.getElementById('reg-guide').classList.add('hidden');return;}
+  const all=[...(m.locations||[]),...(m.locOther?[m.locOther]:[])];
+  document.getElementById('my-info').innerHTML=`
+    <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap">
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:15px">${esc(m.name)} <span style="font-weight:400;font-size:12px;color:var(--muted)">${esc(m.age)}歳</span></div>
+        <div class="ltags">${all.map(l=>`<span class="ltag">${esc(l)}</span>`).join('')}</div>
+        ${m.memo?`<div style="font-size:12px;color:var(--muted);margin-top:6px">${esc(m.memo)}</div>`:''}
+      </div>${m.priority?'<span class="bdg bpr">⭐ 優先</span>':''}
+    </div>`;
+  document.getElementById('my-card').classList.remove('hidden');
+  document.getElementById('reg-guide').classList.remove('hidden');
+}
+function prefill(){
+  if(!DATA||!myMId)return;
+  const m=(DATA.members||[]).find(m=>m.id===myMId);if(!m)return;
+  document.getElementById('rn').value=m.name;document.getElementById('ra').value=m.age;document.getElementById('rm').value=m.memo||'';
+  setLocs(m.locations||[],m.locOther||'');
+  const np=document.getElementById(m.notifPref==='browser'?'np-br':m.notifPref==='none'?'np-no':'np-app');if(np)np.checked=true;
+  window.scrollTo({top:0,behavior:'smooth'});toast('編集後「登録する」を押してください');
+}
+
+/* ══════════════════════════════════════════
+   通知
+══════════════════════════════════════════ */
+async function pushNotif({memberId,eventId,eventTitle,msg,icon}){
+  if(!DATA.notifs)DATA.notifs=[];
+  DATA.notifs.unshift({id:uid(),memberId,eventId,eventTitle,msg,icon:icon||'🔔',read:false,ts:new Date().toISOString()});
+  await save();updateNBell();
+  if(memberId===myMId){
+    showInAppNotif({title:eventTitle,msg,icon});
+    const me=(DATA.members||[]).find(m=>m.id===myMId);
+    if(me?.notifPref==='browser'&&'Notification' in window&&Notification.permission==='granted')new Notification('コミュサポ：'+eventTitle,{body:msg});
+    renderMyNotifs();
+  }
+}
+function showInAppNotif({title,msg,icon}){
+  const el=document.createElement('div');el.className='ncard';
+  el.innerHTML=`<span style="font-size:22px">${icon||'🔔'}</span><div class="ncb"><div class="nct">${esc(title)}</div><div class="ncm">${esc(msg)}</div></div><button class="nclse" onclick="this.closest('.ncard').remove()">✕</button>`;
+  document.getElementById('npanel').appendChild(el);
+  setTimeout(()=>el.style.opacity='0',6000);setTimeout(()=>el.remove(),6500);
+}
+function updateNBell(){
+  const c=myMId?(DATA?.notifs||[]).filter(n=>n.memberId===myMId&&!n.read).length:0;
+  const b=document.getElementById('nbell');b.textContent=c;b.classList.toggle('hidden',c===0);
+}
+function renderMyNotifs(){
+  if(!DATA||!myMId)return;
+  const mine=(DATA.notifs||[]).filter(n=>n.memberId===myMId);
+  const card=document.getElementById('notif-card');
+  if(!mine.length){card.classList.add('hidden');return;}
+  card.classList.remove('hidden');
+  document.getElementById('notif-list').innerHTML=mine.slice(0,10).map(n=>`
+    <div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);align-items:flex-start;opacity:${n.read?.6:1}">
+      <span style="font-size:20px">${n.icon||'🔔'}</span>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:13px">${esc(n.eventTitle)}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:3px">${esc(n.msg)}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">${fmtDate(n.ts)}</div>
+      </div>${!n.read?'<span class="bdg bpr" style="font-size:10px">NEW</span>':''}
+    </div>`).join('');
+}
+async function clearNotifs(){
+  if(!DATA||!myMId)return;
+  DATA.notifs=(DATA.notifs||[]).map(n=>n.memberId===myMId?{...n,read:true}:n);
+  try {
+    await save();
+    updateNBell();
+    renderMyNotifs();
+    toast('✅ 通知を既読にしました');
+  } catch {
+    toast('❌ 保存失敗');
+  }
+}
+
+function openNotifModal(){
+  if(!DATA||!myMId){ toast('⚠️ 登録してください'); return; }
+  const mine=(DATA.notifs||[]).filter(n=>n.memberId===myMId);
+  document.getElementById('mn-s').textContent=`全 ${mine.length} 件`;
+  const container = document.getElementById('mn-c');
+  if(!mine.length){
+    container.innerHTML='<div class="empty"><div class="ei">🔔</div>通知はありません</div>';
+  } else {
+    container.innerHTML=mine.map(n=>`
+      <div style="display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);align-items:flex-start;opacity:${n.read?.6:1}">
+        <span style="font-size:22px">${n.icon||'🔔'}</span>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:14px">${esc(n.eventTitle)}</div>
+          <div style="font-size:12px;color:var(--ink2);margin-top:2px;line-height:1.5">${esc(n.msg)}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">${fmtDate(n.ts)}</div>
+        </div>
+      </div>`).join('');
+  }
+  om('m-notifs');
+  clearNotifs();
+}
+
+/* ══════════════════════════════════════════
+   日程調査（ユーザー）
+══════════════════════════════════════════ */
+function renderUserSurveys(){
+  const container=document.getElementById('survey-ul');
+  if(!DATA||!DATA.surveys||!DATA.surveys.length){
+    container.innerHTML='<div class="empty"><div class="ei">📅</div>日程調査はありません</div>';
+    return;
+  }
+  const me=(DATA.members||[]).find(m=>m.id===myMId);
+  const isPri=me?.priority||false;
+  
+  const activeSurveys=DATA.surveys.filter(s=>s.target==='all'||(s.target==='priority'&&isPri));
+  if(!activeSurveys.length){
+    container.innerHTML='<div class="empty"><div class="ei">📅</div>対象の日程調査はありません</div>';
+    return;
+  }
+
+  container.innerHTML=activeSurveys.map(s=>{
+    const expired=isExp(s.deadline);
+    const myAns=(s.answers||[]).find(a=>a.memberId===myMId);
+    return `
+      <div class="sc">
+        <div class="sch">
+          <div>
+            <div class="sct">${esc(s.title)}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:3px">締切: ${fmtDate(s.deadline)} ${expired?'<span class="bdg br2">終了</span>':''}</div>
+          </div>
+          ${myAns?'<span class="bdg ba">回答済</span>':'<span class="bdg bp2">未回答</span>'}
+        </div>
+        <div class="scb">
+          <div class="dlist">
+            ${s.dates.map((d,i)=>{
+              const curVal=myAns?.responses?.[i]||'';
+              return `
+                <div class="di ${curVal==='ok'?'ok':curVal==='ng'?'ng':curVal==='maybe'?'maybe':''}">
+                  <div class="dlbl">${esc(d)}</div>
+                  <div class="tg">
+                    <input type="radio" class="rok" name="s_${s.id}_${i}" id="s_${s.id}_${i}_ok" value="ok" ${curVal==='ok'?'checked':''} ${expired?'disabled':''}>
+                    <label for="s_${s.id}_${i}_ok" onclick="setSurveyAns('${s.id}',${i},'ok')">⭕️ 参加</label>
+                    <input type="radio" class="rma" name="s_${s.id}_${i}" id="s_${s.id}_${i}_ma" value="maybe" ${curVal==='maybe'?'checked':''} ${expired?'disabled':''}>
+                    <label for="s_${s.id}_${i}_ma" onclick="setSurveyAns('${s.id}',${i},'maybe')">🔺 微妙</label>
+                    <input type="radio" class="rng" name="s_${s.id}_${i}" id="s_${s.id}_${i}_ng" value="ng" ${curVal==='ng'?'checked':''} ${expired?'disabled':''}>
+                    <label for="s_${s.id}_${i}_ng" onclick="setSurveyAns('${s.id}',${i},'ng')">❌ 不可</label>
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>
+        </div>
+        ${!expired?`
+        <div class="scf">
+          <button class="btn bp bfull" onclick="submitSurvey('${s.id}')">送信・更新する →</button>
+        </div>`:''}
+      </div>`;
+  }).join('');
+}
+
+const tempAns={};
+function setSurveyAns(sid,idx,val){
+  if(!tempAns[sid])tempAns[sid]={};
+  tempAns[sid][idx]=val;
+}
+
+async function submitSurvey(sid){
+  if(!myMId){ toast('⚠️ 最初に「👋 登録」タブで名前を登録してください'); sw('reg'); return; }
+  const s=DATA.surveys.find(x=>x.id===sid);
+  if(!s)return;
+  
+  const answers=s.dates.map((_,i)=>{
+    return tempAns[sid]?.[i] || document.querySelector(`input[name="s_${sid}_${i}"]:checked`)?.value || 'ng';
+  });
+
+  const me=(DATA.members||[]).find(m=>m.id===myMId);
+  const myName=me?me.name:'不明';
+
+  if(!s.answers)s.answers=[];
+  const existIdx=s.answers.findIndex(a=>a.memberId===myMId);
+  if(existIdx>=0){
+    s.answers[existIdx]={memberId:myMId,memberName:myName,responses:answers,updatedAt:new Date().toISOString()};
+  } else {
+    s.answers.push({memberId:myMId,memberName:myName,responses:answers,updatedAt:new Date().toISOString()});
+  }
+
+  try {
+    await save();
+    toast('✅ 回答を送信しました');
+    renderUserSurveys();
+  } catch {
+    toast('❌ 送信失敗。ネット接続を確認してください');
+  }
+}
+
+/* ══════════════════════════════════════════
+   イベント（ユーザー）
+══════════════════════════════════════════ */
+function renderUserEvents(){
+  const container=document.getElementById('event-ul');
+  if(!DATA||!DATA.events||!DATA.events.length){
+    container.innerHTML='<div class="empty"><div class="ei">🎟</div>イベントはありません</div>';
+    return;
+  }
+
+  container.innerHTML=DATA.events.map(e=>{
+    const joins=(e.participants||[]).filter(p=>p.status==='join');
+    const waits=(e.participants||[]).filter(p=>p.status==='wait');
+    const myPart=(e.participants||[]).find(p=>p.memberId===myMId);
+    const cap=parseInt(e.capacity)||0;
+    const isFull=cap>0 && joins.length>=cap;
+    const expired=isExp(e.deadline);
+
+    let statusBdg='<span class="bdg ba">受付中</span>';
+    if(expired) statusBdg='<span class="bdg br2">受付終了</span>';
+    else if(isFull) statusBdg='<span class="bdg bp2">キャンセル待ち</span>';
+
+    return `
+      <div class="ec">
+        <div class="eb">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+            <h3>${esc(e.title)}</h3>
+            ${statusBdg}
+          </div>
+          <p style="margin-top:4px">📅 ${fmtDate(e.datetime)} ${e.timeRange?'('+esc(e.timeRange)+')':''}</p>
+        </div>
+        <div class="ebody">
+          <div class="em">
+            <div class="emi"><label>📍 場所</label><span>${esc(e.place||'未定')}</span></div>
+            <div class="emi"><label>💰 費用</label><span>${esc(e.cost||'無料')}</span></div>
+          </div>
+          ${e.description?`<div style="font-size:13px;color:var(--ink2);margin-bottom:12px;white-space:pre-wrap;line-height:1.5">${esc(e.description)}</div>`:''}
+          
+          <div style="margin-bottom:8px;display:flex;justify-content:space-between;font-size:12px;font-weight:700">
+            <span>参加人数: ${joins.length} ${cap?`/ ${cap}名`:''}</span>
+            ${waits.length?`<span style="color:var(--warn)">キャンセル待ち: ${waits.length}名</span>`:''}
+          </div>
+          ${cap?`<div class="ebar"><div class="ebf ${isFull?'full':''}" style="width:${Math.min(100,(joins.length/cap)*100)}%"></div></div>`:''}
+        </div>
+        <div class="ef">
+          ${myPart?`
+            <div style="flex:1;font-size:13px;font-weight:700">
+              ステータス: ${myPart.status==='join'?'<span style="color:var(--ok)">⭕️ 参加確定</span>':'<span style="color:var(--warn)">⏳ キャンセル待ち</span>'}
+            </div>
+            <button class="btn bo bsm" onclick="cancelEvent('${e.id}')">キャンセルする</button>
+          `:`
+            <button class="btn bp bfull" ${expired?'disabled':''} onclick="joinEvent('${e.id}')">
+              ${expired?'受付終了':isFull?'⏳ キャンセル待ちで申し込む':'🎟 参加申し込む →'}
+            </button>
+          `}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function joinEvent(eid){
+  if(!myMId){ toast('⚠️ 最初に「👋 登録」タブで名前を登録してください'); sw('reg'); return; }
+  const e=DATA.events.find(x=>x.id===eid);
+  if(!e)return;
+  if(!e.participants)e.participants=[];
+
+  const me=(DATA.members||[]).find(m=>m.id===myMId);
+  const myName=me?me.name:'不明';
+  const cap=parseInt(e.capacity)||0;
+  const joins=e.participants.filter(p=>p.status==='join');
+  const status=(cap>0 && joins.length>=cap)?'wait':'join';
+
+  e.participants.push({memberId:myMId,memberName:myName,status,joinedAt:new Date().toISOString()});
+
+  try {
+    await save();
+    toast(status==='join'?'✅ 参加申し込みが完了しました！':'⏳ キャンセル待ちで受付しました');
+    renderUserEvents();
+  } catch {
+    toast('❌ 申込失敗。ネット接続を確認してください');
+  }
+}
+
+async function cancelEvent(eid){
+  if(!confirm('本当にキャンセルしますか？'))return;
+  const e=DATA.events.find(x=>x.id===eid);
+  if(!e||!e.participants)return;
+
+  const myIdx=e.participants.findIndex(p=>p.memberId===myMId);
+  if(myIdx<0)return;
+  const wasJoin=e.participants[myIdx].status==='join';
+  e.participants.splice(myIdx,1);
+
+  // 繰り上げ処理
+  if(wasJoin){
+    const nextWait=e.participants.find(p=>p.status==='wait');
+    if(nextWait){
+      nextWait.status='join';
+      await pushNotif({
+        memberId:nextWait.memberId,
+        eventId:e.id,
+        eventTitle:e.title,
+        msg:'🎉 キャンセルが出たため、参加枠が繰り上がりました！',
+        icon:'🎟'
+      });
+    }
+  }
+
+  try {
+    await save();
+    toast('キャンセルしました');
+    renderUserEvents();
+  } catch {
+    toast('❌ キャンセル処理失敗');
+  }
+}
+
+/* ══════════════════════════════════════════
+   管理：会員管理
+══════════════════════════════════════════ */
+function renderAdmMembers(){
+  const container=document.getElementById('adm-ml');
+  if(!DATA||!DATA.members||!DATA.members.length){
+    container.innerHTML='<div class="empty"><div class="ei">👥</div>まだ登録者がいません</div>';
+    return;
+  }
+
+  container.innerHTML='<div class="ml">'+DATA.members.map(m=>{
+    const all=[...(m.locations||[]),...(m.locOther?[m.locOther]:[])];
+    return `
+      <div class="mc">
+        <div class="mch">
+          <button class="ptgl ${m.priority?'on':''}" onclick="tglPriority('${m.id}')">⭐</button>
+          <div class="mn">${esc(m.name)} <span style="font-size:12px;color:var(--muted);font-weight:400">${esc(m.age)}歳</span></div>
+          <button class="btn bo bsm" onclick="openSOSModal('${m.id}')" style="color:var(--accent);border-color:var(--accent)">🆘 SOS</button>
+          <button class="btn bo bsm" onclick="deleteMember('${m.id}')" style="color:#ef4444">削除</button>
+        </div>
+        <div style="padding:10px 14px;font-size:12px">
+          <div class="ltags">${all.map(l=>`<span class="ltag">${esc(l)}</span>`).join('')}</div>
+          ${m.memo?`<div style="color:var(--muted);margin-top:6px">${esc(m.memo)}</div>`:''}
+        </div>
+      </div>`;
+  }).join('')+'</div>';
+
+  renderSOSList();
+}
+
+async function tglPriority(mid){
+  const m=DATA.members.find(x=>x.id===mid);
+  if(!m)return;
+  m.priority=!m.priority;
+  try { await save(); renderAdmMembers(); toast('優先フラグを更新しました'); } catch { toast('❌ 更新失敗'); }
+}
+
+async function deleteMember(mid){
+  if(!confirm('このメンバーを削除しますか？'))return;
+  DATA.members=DATA.members.filter(m=>m.id!==mid);
+  try { await save(); renderAdmMembers(); toast('削除しました'); } catch { toast('❌ 削除失敗'); }
+}
+
+async function addMemberAdmin(){
+  const name=document.getElementById('am-n').value.trim();
+  const age=document.getElementById('am-a').value.trim();
+  if(!name||!age){ toast('名前と年齢を入力してください'); return; }
+  const locStr=document.getElementById('am-l').value.trim();
+  const memo=document.getElementById('am-m').value.trim();
+  const pri=document.querySelector('input[name="am-p"]:checked')?.value==='true';
+
+  if(!DATA.members)DATA.members=[];
+  DATA.members.push({
+    id:uid(),name,age,locations:locStr?[locStr]:[],locOther:'',memo,priority:pri,notifPref:'app',createdAt:new Date().toISOString()
+  });
+
+  try {
+    await save();
+    cm('m-add');
+    toast('✅ メンバーを追加しました');
+    renderAdmMembers();
+    document.getElementById('am-n').value='';document.getElementById('am-a').value='';document.getElementById('am-l').value='';document.getElementById('am-m').value='';
+  } catch {
+    toast('❌ 追加失敗');
+  }
+}
+
+function exportCSV(){
+  if(!DATA||!DATA.members||!DATA.members.length){ toast('データがありません'); return; }
+  let csv='ID,名前,年齢,場所,メモ,優先,登録日時\n';
+  DATA.members.forEach(m=>{
+    const locs=[...(m.locations||[]),...(m.locOther?[m.locOther]:[])].join(';');
+    csv+=`"${m.id}","${m.name}","${m.age}","${locs}","${m.memo||''}","${m.priority?'YES':'NO'}","${m.createdAt}"\n`;
+  });
+  const blob=new Blob([new Uint8Array([0xEF,0xBB,0xBF]),csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`members_${GRP.code}.csv`;a.click();
+}
+
+/* ══════════════════════════════════════════
+   管理：緊急連絡 (SOS)
+══════════════════════════════════════════ */
+let targetSosMid=null;
+function openSOSModal(mid){
+  targetSosMid=mid;
+  const m=DATA.members.find(x=>x.id===mid);
+  document.getElementById('sos-ei').textContent=`対象者: ${m?m.name:'不明'} さん`;
+  document.getElementById('sos-msg').value='';
+  om('m-sos');
+}
+
+async function sendSOS(){
+  const msg=document.getElementById('sos-msg').value.trim();
+  if(!msg){ toast('メッセージを入力してください'); return; }
+  if(!DATA.sos)DATA.sos=[];
+  
+  const m=DATA.members.find(x=>x.id===targetSosMid);
+  DATA.sos.unshift({
+    id:uid(),memberId:targetSosMid,memberName:m?m.name:'不明',msg,ts:new Date().toISOString()
+  });
+
+  try {
+    await save();
+    cm('m-sos');
+    toast('📩 緊急連絡を記録しました');
+    renderAdmMembers();
+  } catch {
+    toast('❌ 送信失敗');
+  }
+}
+
+function renderSOSList(){
+  const container=document.getElementById('sos-list');
+  if(!DATA||!DATA.sos||!DATA.sos.length){
+    container.innerHTML='<div class="empty" style="padding:14px"><div class="ei">✅</div>緊急連絡はありません</div>';
+    return;
+  }
+
+  container.innerHTML=DATA.sos.map(s=>`
+    <div class="alt al" style="margin-bottom:8px;text-align:left">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <strong>🆘 ${esc(s.memberName)} さん</strong>
+        <span>${fmtDate(s.ts)}</span>
+      </div>
+      <div style="font-weight:400;color:var(--ink)">${esc(s.msg)}</div>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════════════
+   管理：調査作成
+══════════════════════════════════════════ */
+async function createSurvey(){
+  const title=document.getElementById('sv-t').value.trim();
+  const dl=document.getElementById('sv-dl').value;
+  const datesStr=document.getElementById('sv-d').value.trim();
+  const tgt=document.querySelector('input[name="sv-tgt"]:checked')?.value||'all';
+
+  if(!title||!datesStr){ toast('⚠️ タイトルと候補日は必須です'); return; }
+  const dates=datesStr.split('\n').map(s=>s.trim()).filter(Boolean);
+
+  if(!DATA.surveys)DATA.surveys=[];
+  const newSurvey={
+    id:uid(),title,deadline:dl||null,dates,target:tgt,answers:[],createdAt:new Date().toISOString()
+  };
+  DATA.surveys.unshift(newSurvey);
+
+  try {
+    await save();
+    toast('📅 日程調査を作成しました');
+    document.getElementById('sv-t').value='';document.getElementById('sv-dl').value='';document.getElementById('sv-d').value='';
+    renderAdmSurveys();
+  } catch {
+    toast('❌ 作成失敗');
+  }
+}
+
+function renderAdmSurveys(){
+  const container=document.getElementById('adm-sl');
+  if(!DATA||!DATA.surveys||!DATA.surveys.length){
+    container.innerHTML='<div class="empty"><div class="ei">📊</div>まだ調査がありません</div>';
+    return;
+  }
+
+  container.innerHTML=DATA.surveys.map(s=>`
+    <div class="sc">
+      <div class="sch">
+        <div>
+          <div class="sct">${esc(s.title)}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">回答数: ${(s.answers||[]).length}件 / 対象: ${s.target==='all'?'全員':'優先のみ'}</div>
+        </div>
+        <button class="btn bo bsm" onclick="showSurveyResult('${s.id}')">集計結果</button>
+      </div>
+    </div>`).join('');
+}
+
+function showSurveyResult(sid){
+  const s=DATA.surveys.find(x=>x.id===sid);
+  if(!s)return;
+  document.getElementById('msr-t').textContent=s.title;
+  document.getElementById('msr-s').textContent=`回答数: ${(s.answers||[]).length}件`;
+
+  let html='<table class="rtbl"><thead><tr><th>名前</th>'+s.dates.map(d=>`<th>${esc(d)}</th>`).join('')+'</tr></thead><tbody>';
+  (s.answers||[]).forEach(a=>{
+    html+=`<tr><td style="font-weight:700">${esc(a.memberName)}</td>`;
+    a.responses.forEach(r=>{
+      const chip=r==='ok'?'<span class="chip cok">⭕️</span>':r==='maybe'?'<span class="chip cma">🔺</span>':'<span class="chip cng">❌</span>';
+      html+=`<td style="text-align:center">${chip}</td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  document.getElementById('msr-c').innerHTML=html;
+  om('m-sr');
+}
+
+/* ══════════════════════════════════════════
+   管理：イベント作成
+══════════════════════════════════════════ */
+async function createEvent(){
+  const title=document.getElementById('ev-t').value.trim();
+  const dt=document.getElementById('ev-dt').value;
+  const timeRange=document.getElementById('ev-tr').value.trim();
+  const place=document.getElementById('ev-pl').value.trim();
+  const capacity=document.getElementById('ev-cap').value.trim();
+  const cost=document.getElementById('ev-cost').value.trim();
+  const deadline=document.getElementById('ev-dl').value;
+  const description=document.getElementById('ev-desc').value.trim();
+
+  if(!title||!dt||!place){ toast('⚠️ イベント名・日時・場所は必須です'); return; }
+
+  if(!DATA.events)DATA.events=[];
+  const newEv={
+    id:uid(),
+    title,
+    datetime:dt,
+    timeRange,
+    place,
+    capacity,
+    cost,
+    deadline:deadline||null,
+    description,
+    participants:[],
+    createdAt:new Date().toISOString()
+  };
+  DATA.events.unshift(newEv);
+
+  try {
+    await save();
+    toast('🎟 イベントを作成しました');
+    // 全員に通知
+    (DATA.members||[]).forEach(m=>{
+      pushNotif({memberId:m.id,eventId:newEv.id,eventTitle:newEv.title,msg:'🎉 新しいイベントが立ち上がりました！',icon:'🎟'});
+    });
+    document.getElementById('ev-t').value='';document.getElementById('ev-dt').value='';document.getElementById('ev-tr').value='';
+    document.getElementById('ev-pl').value='';document.getElementById('ev-cap').value='';document.getElementById('ev-cost').value='';
+    document.getElementById('ev-dl').value='';document.getElementById('ev-desc').value='';
+    renderAdmEvents();
+  } catch {
+    toast('❌ イベント作成失敗');
+  }
+}
+
+function renderAdmEvents(){
+  const container=document.getElementById('adm-el');
+  if(!DATA||!DATA.events||!DATA.events.length){
+    container.innerHTML='<div class="empty"><div class="ei">🗂</div>まだイベントがありません</div>';
+    return;
+  }
+
+  container.innerHTML=DATA.events.map(e=>`
+    <div class="sc">
+      <div class="sch">
+        <div>
+          <div class="sct">${esc(e.title)}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">📅 ${fmtDate(e.datetime)}</div>
+        </div>
+        <button class="btn bo bsm" onclick="showEventAdminModal('${e.id}')">参加者管理</button>
+      </div>
+    </div>`).join('');
+}
+
+function showEventAdminModal(eid){
+  const e=DATA.events.find(x=>x.id===eid);
+  if(!e)return;
+  document.getElementById('mea-t').textContent=e.title;
+  const joins=(e.participants||[]).filter(p=>p.status==='join');
+  const waits=(e.participants||[]).filter(p=>p.status==='wait');
+  document.getElementById('mea-s').textContent=`参加確定: ${joins.length}名 / キャンセル待ち: ${waits.length}名`;
+
+  let html='<div style="font-size:13px;font-weight:700;margin-bottom:8px">⭕️ 参加確定メンバー</div>';
+  if(!joins.length) html+='<div style="font-size:12px;color:var(--muted);margin-bottom:12px">なし</div>';
+  else {
+    html+='<ul style="margin-bottom:12px;padding-left:20px;font-size:13px">'+joins.map(p=>`<li>${esc(p.memberName)} (${fmtDate(p.joinedAt)})</li>`).join('')+'</ul>';
+  }
+
+  if(waits.length){
+    html+='<div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--warn)">⏳ キャンセル待ち</div>';
+    html+='<ul style="padding-left:20px;font-size:13px;color:var(--muted)">'+waits.map(p=>`<li>${esc(p.memberName)}</li>`).join('')+'</ul>';
+  }
+
+  document.getElementById('mea-c').innerHTML=html;
+  om('m-ea');
+}
+
+/* ══════════════════════════════════════════
+   自動起動
+   ・SB_URL / SB_KEY はスクリプト冒頭に埋め込み済み（管理者が初回のみ設定）
+   ・参加者は招待URL（?group=CODE）を開くだけで自動参加
+══════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', async ()=>{
+  const urlCode=new URLSearchParams(location.search).get('group');
+  const savedGrp=LS.get('grp');
+
+  if(urlCode){
+    // 招待リンクから開いた場合：自動でグループに参加
+    document.getElementById('step-group').classList.add('hidden');
+    document.getElementById('pane-autojoin').classList.remove('hidden');
+    const ok=await attemptJoin(urlCode.toUpperCase());
+    if(!ok){
+      // 失敗時は手動入力にフォールバック
+      document.getElementById('join-code').value=urlCode.toUpperCase();
+      document.getElementById('join-err').textContent='❌ このリンクのグループに接続できませんでした。コードを確認してください';
+      showPane('pane-join');
+    }
+    return;
+  }
+
+  if(savedGrp){
+    // 以前に参加/作成済みのグループがあれば自動復帰
+    GRP=savedGrp;
+    document.getElementById('step-group').classList.add('hidden');
+    document.getElementById('pane-autojoin').classList.remove('hidden');
+    try{
+      const data=await sbGet(GRP.code);
+      DATA=data;
+      document.getElementById('setup').style.display='none';
+      updateConnStatus(true);
+      initApp();
+    }catch{
+      showPane('pane-join');
+      updateConnStatus(false);
+    }
+    return;
+  }
+
+  // 初回起動・招待リンクなし：手動参加／グループ作成画面
+  showPane('pane-join');
+});
+</script>
+</body>
+</html>
