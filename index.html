@@ -498,6 +498,7 @@ async function sbUpsert(code,data){
    STATE
 ══════════════════════════════════════════ */
 let GRP=null,DATA=null,myMId=null,adminOK=false,pendTab=null,curTab='reg',pollT=null;
+let PENDING_M=null,PENDING_E=null; // 個別招待リンク（?m=会員ID&e=イベントID）で開いた場合に一度だけ使用
 const ATABS=['am','as','ae'];
 const ALLTABS=['reg','survey','events','am','as','ae'];
 
@@ -565,11 +566,49 @@ async function createGroup(){
 
 function copyInvite(){
   const txt=document.getElementById('done-link').textContent;
+  copyTextToClipboard(txt,'📋 招待リンクをコピーしました');
+}
+
+/* 汎用：文字列をクリップボードにコピー */
+function copyTextToClipboard(txt,okMsg){
   const ta=document.createElement('textarea');
   ta.value=txt;document.body.appendChild(ta);ta.select();
-  try{document.execCommand('copy');toast('📋 招待リンクをコピーしました');}
+  try{document.execCommand('copy');toast(okMsg||'📋 コピーしました');}
   catch{toast('❌ コピーに失敗しました');}
   document.body.removeChild(ta);
+}
+
+/* スマホが苦手な方向け：会員個別の招待リンク（開くだけで本人としてログインし「イベント」タブへ直行） */
+function copyMemberInvite(mid){
+  if(!GRP)return;
+  const url=`${location.origin}${location.pathname}?group=${encodeURIComponent(GRP.code)}&m=${encodeURIComponent(mid)}`;
+  copyTextToClipboard(url,'📋 招待リンクをコピーしました。LINEなどで本人に送ってください');
+}
+
+/* 会員×特定イベントの招待リンク（開くと自動ログイン→そのイベントまで自動スクロール） */
+function copyEventMemberInvite(eid){
+  const mid=document.getElementById('mea-sel-member')?.value;
+  if(!mid){ toast('⚠️ 先にメンバーを選択してください'); return; }
+  if(!GRP)return;
+  const url=`${location.origin}${location.pathname}?group=${encodeURIComponent(GRP.code)}&m=${encodeURIComponent(mid)}&e=${encodeURIComponent(eid)}`;
+  copyTextToClipboard(url,'📋 このイベント専用の招待リンクをコピーしました');
+}
+
+/* ワンタップでLINEの送信画面を開く（Botなし・通常のLINEアプリを使用） */
+function lineShare(text){
+  window.open('https://line.me/R/msg/text/?text='+encodeURIComponent(text),'_blank');
+}
+function lineAnnounceEvent(eid){
+  const e=DATA.events.find(x=>x.id===eid); if(!e)return;
+  const link=inviteUrlFor(GRP.code);
+  const text=`🎉【新しいイベントのお知らせ】\n${e.title}\n📅 ${fmtDate(e.datetime)}${e.timeRange?'（'+e.timeRange+'）':''}\n📍 ${e.place||'未定'}\n💰 ${e.cost||'無料'}\n\n参加希望の方はこちらから！\n${link}`;
+  lineShare(text);
+}
+function lineRemindEvent(eid){
+  const e=DATA.events.find(x=>x.id===eid); if(!e)return;
+  const link=inviteUrlFor(GRP.code);
+  const text=`⏰【明日開催です】\n${e.title}\n📅 ${fmtDate(e.datetime)}${e.timeRange?'（'+e.timeRange+'）':''}\n📍 ${e.place||'未定'}\n\nお忘れなく！詳細・キャンセルはこちら\n${link}`;
+  lineShare(text);
 }
 
 function enterApp(){
@@ -606,11 +645,37 @@ async function joinGroup(){
 function initApp(){
   myMId=LS.get('myMId');
   if(LS.get('isAdmin'))adminOK=true;
+
+  // 個別招待リンク（?group=CODE&m=会員ID）で開いた場合：本人として自動ログインし、登録入力をスキップ
+  let landedAsInvited=false;
+  if(PENDING_M){
+    const exists=(DATA.members||[]).some(m=>m.id===PENDING_M);
+    if(exists){ myMId=PENDING_M; LS.set('myMId',myMId); landedAsInvited=true; }
+    PENDING_M=null;
+  }
+
   updateLockUI();
   document.getElementById('hdr-title').textContent=GRP.name||'コミュサポ';
   document.getElementById('hdr-sub').textContent='コード: '+GRP.code;
   renderMyStatus();renderMyNotifs();updateNBell();
   startPoll();
+
+  if(landedAsInvited){
+    const me=(DATA.members||[]).find(m=>m.id===myMId);
+    sw('events');
+    if(me)toast(`👋 ようこそ、${me.name}さん！`);
+    if(PENDING_E){ const eid=PENDING_E; PENDING_E=null; setTimeout(()=>focusEvent(eid),350); }
+  }
+}
+
+/* イベントカードまでスクロールしてハイライトする（招待リンクで特定イベントを指定した場合用） */
+function focusEvent(eid){
+  const el=document.querySelector(`.ec[data-eid="${eid}"]`);
+  if(!el)return;
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+  el.style.outline='3px solid var(--accent)';
+  el.style.outlineOffset='2px';
+  setTimeout(()=>{el.style.outline='';el.style.outlineOffset='';},2600);
 }
 function startPoll(){
   if(pollT)clearInterval(pollT);
@@ -930,7 +995,7 @@ function renderUserEvents(){
     else if(isFull) statusBdg='<span class="bdg bp2">キャンセル待ち</span>';
 
     return `
-      <div class="ec">
+      <div class="ec" data-eid="${e.id}">
         <div class="eb">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
             <h3>${esc(e.title)}</h3>
@@ -1041,6 +1106,7 @@ function renderAdmMembers(){
         <div class="mch">
           <button class="ptgl ${m.priority?'on':''}" onclick="tglPriority('${m.id}')">⭐</button>
           <div class="mn">${esc(m.name)} <span style="font-size:12px;color:var(--muted);font-weight:400">${esc(m.age)}歳</span></div>
+          <button class="btn bo bsm" onclick="copyMemberInvite('${m.id}')">🔗 招待リンク</button>
           <button class="btn bo bsm" onclick="openSOSModal('${m.id}')" style="color:var(--accent);border-color:var(--accent)">🆘 SOS</button>
           <button class="btn bo bsm" onclick="deleteMember('${m.id}')" style="color:#ef4444">削除</button>
         </div>
@@ -1273,39 +1339,195 @@ function renderAdmEvents(){
     return;
   }
 
-  container.innerHTML=DATA.events.map(e=>`
+  container.innerHTML=DATA.events.map(e=>{
+    const joins=(e.participants||[]).filter(p=>p.status==='join').length;
+    const cap=parseInt(e.capacity)||0;
+    return `
     <div class="sc">
       <div class="sch">
         <div>
           <div class="sct">${esc(e.title)}</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">📅 ${fmtDate(e.datetime)}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">📅 ${fmtDate(e.datetime)} ・ 参加 ${joins}${cap?'/'+cap:''}名</div>
         </div>
-        <button class="btn bo bsm" onclick="showEventAdminModal('${e.id}')">参加者管理</button>
+        <button class="btn bo bsm" onclick="showEventAdminModal('${e.id}')">👤 参加者管理</button>
       </div>
-    </div>`).join('');
+      <div class="scf">
+        <button class="btn bo bsm" onclick="lineAnnounceEvent('${e.id}')">📣 LINEで告知</button>
+        <button class="btn bo bsm" onclick="lineRemindEvent('${e.id}')">⏰ 前日リマインドをLINEで送る</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function showEventAdminModal(eid){
   const e=DATA.events.find(x=>x.id===eid);
   if(!e)return;
+  renderEventAdminModal(eid);
+  om('m-ea');
+}
+
+/* 参加者管理モーダルの中身を描画（追加・ゲスト追加・繰り上げ・削除に対応） */
+function renderEventAdminModal(eid){
+  const e=DATA.events.find(x=>x.id===eid);
+  if(!e)return;
   document.getElementById('mea-t').textContent=e.title;
   const joins=(e.participants||[]).filter(p=>p.status==='join');
   const waits=(e.participants||[]).filter(p=>p.status==='wait');
-  document.getElementById('mea-s').textContent=`参加確定: ${joins.length}名 / キャンセル待ち: ${waits.length}名`;
+  const cap=parseInt(e.capacity)||0;
+  document.getElementById('mea-s').textContent=`参加確定: ${joins.length}${cap?'/'+cap:''}名 ・ キャンセル待ち: ${waits.length}名`;
 
-  let html='<div style="font-size:13px;font-weight:700;margin-bottom:8px">⭕️ 参加確定メンバー</div>';
-  if(!joins.length) html+='<div style="font-size:12px;color:var(--muted);margin-bottom:12px">なし</div>';
+  const memberOptions=(DATA.members||[])
+    .filter(m=>!(e.participants||[]).some(p=>p.memberId===m.id))
+    .map(m=>`<option value="${m.id}">${esc(m.name)}（${esc(m.age)}歳）</option>`).join('');
+
+  let html=`
+    <div style="background:#faf9f6;border:2px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px">＋ 参加者を追加</div>
+      <div class="f" style="margin-bottom:8px">
+        <label>登録済みメンバーから追加</label>
+        <select id="mea-sel-member">
+          <option value="">選択してください</option>
+          ${memberOptions||'<option value="" disabled>追加できるメンバーがいません</option>'}
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button class="btn bs bsm" style="flex:1" onclick="adminAddParticipantFromMember('${eid}')">参加者として追加</button>
+        <button class="btn bo bsm" style="flex:1" onclick="copyEventMemberInvite('${eid}')">🔗 このイベント招待リンク</button>
+      </div>
+      <div class="f" style="margin-bottom:8px">
+        <label>ゲストを追加（LINE連絡先を知らない参加者など）</label>
+        <input id="mea-guest-name" placeholder="お名前">
+      </div>
+      <button class="btn bo bsm" style="width:100%" onclick="adminAddGuest('${eid}')">ゲストとして追加</button>
+    </div>
+  `;
+
+  html+='<div style="font-size:13px;font-weight:700;margin-bottom:8px">⭕️ 参加確定メンバー</div>';
+  if(!joins.length) html+='<div style="font-size:12px;color:var(--muted);margin-bottom:14px">なし</div>';
   else {
-    html+='<ul style="margin-bottom:12px;padding-left:20px;font-size:13px">'+joins.map(p=>`<li>${esc(p.memberName)} (${fmtDate(p.joinedAt)})</li>`).join('')+'</ul>';
+    html+='<div class="dlist" style="margin-bottom:16px">'+joins.map(p=>`
+      <div class="di ok">
+        <div class="dlbl">${esc(p.memberName)}${p.isGuest?' <span class="bdg bg2" style="font-size:10px">ゲスト</span>':''}</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn bo bsm" onclick="adminSetWait('${eid}','${p.memberId}')">待機に</button>
+          <button class="btn bo bsm" style="color:#ef4444" onclick="adminRemoveParticipant('${eid}','${p.memberId}')">削除</button>
+        </div>
+      </div>`).join('')+'</div>';
   }
 
   if(waits.length){
     html+='<div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--warn)">⏳ キャンセル待ち</div>';
-    html+='<ul style="padding-left:20px;font-size:13px;color:var(--muted)">'+waits.map(p=>`<li>${esc(p.memberName)}</li>`).join('')+'</ul>';
+    html+='<div class="dlist">'+waits.map(p=>`
+      <div class="di maybe">
+        <div class="dlbl">${esc(p.memberName)}${p.isGuest?' <span class="bdg bg2" style="font-size:10px">ゲスト</span>':''}</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn bo bsm" onclick="adminPromote('${eid}','${p.memberId}')">繰り上げ</button>
+          <button class="btn bo bsm" style="color:#ef4444" onclick="adminRemoveParticipant('${eid}','${p.memberId}')">削除</button>
+        </div>
+      </div>`).join('')+'</div>';
+  }
+
+  if(!joins.length && !waits.length){
+    html+='<div class="empty" style="padding:20px"><div class="ei">🙋</div>まだ参加者がいません</div>';
   }
 
   document.getElementById('mea-c').innerHTML=html;
-  om('m-ea');
+}
+
+/* 登録済みメンバーを管理者が参加者として追加（定員超過時は自動でキャンセル待ちへ） */
+async function adminAddParticipantFromMember(eid){
+  const mid=document.getElementById('mea-sel-member').value;
+  if(!mid){ toast('⚠️ メンバーを選択してください'); return; }
+  const e=DATA.events.find(x=>x.id===eid); if(!e)return;
+  const m=DATA.members.find(x=>x.id===mid); if(!m)return;
+  if(!e.participants)e.participants=[];
+  if(e.participants.some(p=>p.memberId===mid)){ toast('すでに参加者に含まれています'); return; }
+  const cap=parseInt(e.capacity)||0;
+  const joins=e.participants.filter(p=>p.status==='join').length;
+  const status=(cap>0 && joins>=cap)?'wait':'join';
+  e.participants.push({memberId:mid,memberName:m.name,status,joinedAt:new Date().toISOString(),addedByAdmin:true});
+  try{
+    await save();
+    toast(status==='join'?'✅ 参加者として追加しました':'⏳ 定員のためキャンセル待ちに追加しました');
+    renderEventAdminModal(eid);
+    renderAdmEvents();
+    await pushNotif({memberId:mid,eventId:e.id,eventTitle:e.title,msg:status==='join'?'👑 管理者によりイベント参加者として登録されました':'👑 管理者によりキャンセル待ちに登録されました',icon:'🎟'});
+  }catch{ toast('❌ 追加に失敗しました'); }
+}
+
+/* LINE連絡先を知らない参加者を、会員登録なしでゲストとしてそのまま追加 */
+async function adminAddGuest(eid){
+  const name=document.getElementById('mea-guest-name').value.trim();
+  if(!name){ toast('⚠️ お名前を入力してください'); return; }
+  const e=DATA.events.find(x=>x.id===eid); if(!e)return;
+  if(!e.participants)e.participants=[];
+  const cap=parseInt(e.capacity)||0;
+  const joins=e.participants.filter(p=>p.status==='join').length;
+  const status=(cap>0 && joins>=cap)?'wait':'join';
+  const gid='guest_'+uid();
+  e.participants.push({memberId:gid,memberName:name,status,joinedAt:new Date().toISOString(),isGuest:true,addedByAdmin:true});
+  try{
+    await save();
+    toast(status==='join'?'✅ ゲストを参加者として追加しました':'⏳ 定員のためキャンセル待ちに追加しました');
+    document.getElementById('mea-guest-name').value='';
+    renderEventAdminModal(eid);
+    renderAdmEvents();
+  }catch{ toast('❌ 追加に失敗しました'); }
+}
+
+/* 参加者を削除（参加確定者が抜けた場合は、キャンセル待ちの先頭を自動で繰り上げ） */
+async function adminRemoveParticipant(eid,mid){
+  if(!confirm('この参加者を削除しますか？'))return;
+  const e=DATA.events.find(x=>x.id===eid); if(!e||!e.participants)return;
+  const idx=e.participants.findIndex(p=>p.memberId===mid);
+  if(idx<0)return;
+  const wasJoin=e.participants[idx].status==='join';
+  e.participants.splice(idx,1);
+  if(wasJoin){
+    const nextWait=e.participants.find(p=>p.status==='wait');
+    if(nextWait){
+      nextWait.status='join';
+      if(!nextWait.isGuest){
+        await pushNotif({memberId:nextWait.memberId,eventId:e.id,eventTitle:e.title,msg:'🎉 キャンセルが出たため、参加枠が繰り上がりました！',icon:'🎟'});
+      }
+    }
+  }
+  try{
+    await save();
+    toast('削除しました');
+    renderEventAdminModal(eid);
+    renderAdmEvents();
+  }catch{ toast('❌ 削除に失敗しました'); }
+}
+
+/* 参加確定 → キャンセル待ちに変更 */
+async function adminSetWait(eid,mid){
+  const e=DATA.events.find(x=>x.id===eid); if(!e||!e.participants)return;
+  const p=e.participants.find(x=>x.memberId===mid); if(!p)return;
+  p.status='wait';
+  try{
+    await save();
+    toast('キャンセル待ちに変更しました');
+    renderEventAdminModal(eid);
+    renderAdmEvents();
+  }catch{ toast('❌ 更新に失敗しました'); }
+}
+
+/* キャンセル待ち → 参加確定に繰り上げ（定員超過時は確認） */
+async function adminPromote(eid,mid){
+  const e=DATA.events.find(x=>x.id===eid); if(!e||!e.participants)return;
+  const p=e.participants.find(x=>x.memberId===mid); if(!p)return;
+  const cap=parseInt(e.capacity)||0;
+  const joins=e.participants.filter(x=>x.status==='join').length;
+  if(cap>0 && joins>=cap){ if(!confirm('すでに定員に達しています。定員を超えて参加確定にしますか？'))return; }
+  p.status='join';
+  try{
+    await save();
+    toast('参加確定にしました');
+    if(!p.isGuest)await pushNotif({memberId:p.memberId,eventId:e.id,eventTitle:e.title,msg:'🎉 管理者により参加確定になりました！',icon:'🎟'});
+    renderEventAdminModal(eid);
+    renderAdmEvents();
+  }catch{ toast('❌ 更新に失敗しました'); }
 }
 
 /* ══════════════════════════════════════════
@@ -1314,11 +1536,16 @@ function showEventAdminModal(eid){
    ・参加者は招待URL（?group=CODE）を開くだけで自動参加
 ══════════════════════════════════════════ */
 window.addEventListener('DOMContentLoaded', async ()=>{
-  const urlCode=new URLSearchParams(location.search).get('group');
+  const qp=new URLSearchParams(location.search);
+  const urlCode=qp.get('group');
+  const urlMember=qp.get('m'); // 個別招待リンク：会員ID
+  const urlEvent=qp.get('e');  // 個別招待リンク：イベントID（任意）
   const savedGrp=LS.get('grp');
 
   if(urlCode){
     // 招待リンクから開いた場合：自動でグループに参加
+    PENDING_M=urlMember||null;
+    PENDING_E=urlEvent||null;
     document.getElementById('step-group').classList.add('hidden');
     document.getElementById('pane-autojoin').classList.remove('hidden');
     const ok=await attemptJoin(urlCode.toUpperCase());
