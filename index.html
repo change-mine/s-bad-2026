@@ -564,6 +564,17 @@ async function createGroup(){
   btn.disabled=false;
 }
 
+/* ══════════════════════════════════════════
+   参加ポイント（イベントに「参加確定」した回数＝1回1pt）
+══════════════════════════════════════════ */
+function getMemberPoints(mid){
+  if(!DATA||!DATA.events||!mid)return 0;
+  return DATA.events.reduce((sum,e)=>{
+    const p=(e.participants||[]).find(x=>x.memberId===mid);
+    return sum+(p&&p.status==='join'?1:0);
+  },0);
+}
+
 function copyInvite(){
   const txt=document.getElementById('done-link').textContent;
   copyTextToClipboard(txt,'📋 招待リンクをコピーしました');
@@ -785,6 +796,7 @@ function renderMyStatus(){
   const m=(DATA.members||[]).find(m=>m.id===myMId);
   if(!m){document.getElementById('my-card').classList.add('hidden');document.getElementById('reg-guide').classList.add('hidden');return;}
   const all=[...(m.locations||[]),...(m.locOther?[m.locOther]:[])];
+  const pts=getMemberPoints(m.id);
   document.getElementById('my-info').innerHTML=`
     <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap">
       <div style="flex:1">
@@ -792,6 +804,10 @@ function renderMyStatus(){
         <div class="ltags">${all.map(l=>`<span class="ltag">${esc(l)}</span>`).join('')}</div>
         ${m.memo?`<div style="font-size:12px;color:var(--muted);margin-top:6px">${esc(m.memo)}</div>`:''}
       </div>${m.priority?'<span class="bdg bpr">⭐ 優先</span>':''}
+    </div>
+    <div style="margin-top:10px;padding:10px 12px;background:#fef3c7;border-radius:10px;display:flex;align-items:center;gap:8px">
+      <span style="font-size:20px">🏆</span>
+      <div><div style="font-weight:800;font-size:16px;color:#92400e">${pts} ポイント</div><div style="font-size:11px;color:#92400e">これまでにイベントに${pts}回参加しました</div></div>
     </div>`;
   document.getElementById('my-card').classList.remove('hidden');
   document.getElementById('reg-guide').classList.remove('hidden');
@@ -1101,11 +1117,13 @@ function renderAdmMembers(){
 
   container.innerHTML='<div class="ml">'+DATA.members.map(m=>{
     const all=[...(m.locations||[]),...(m.locOther?[m.locOther]:[])];
+    const pts=getMemberPoints(m.id);
     return `
       <div class="mc">
         <div class="mch">
           <button class="ptgl ${m.priority?'on':''}" onclick="tglPriority('${m.id}')">⭐</button>
           <div class="mn">${esc(m.name)} <span style="font-size:12px;color:var(--muted);font-weight:400">${esc(m.age)}歳</span></div>
+          <span class="bdg bp2">🏆 ${pts}pt</span>
           <button class="btn bo bsm" onclick="copyMemberInvite('${m.id}')">🔗 招待リンク</button>
           <button class="btn bo bsm" onclick="openSOSModal('${m.id}')" style="color:var(--accent);border-color:var(--accent)">🆘 SOS</button>
           <button class="btn bo bsm" onclick="deleteMember('${m.id}')" style="color:#ef4444">削除</button>
